@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es5",
+        "strictNullChecks": true,
+        "noImplicitAny": true,
+        "sourceMap": true,
+        "watch": true
+    },
+    "files": [
+        "Ix-DOM.ts",
+        "Examples.ts"
+    ]
+}
