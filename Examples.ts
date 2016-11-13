@@ -1,4 +1,3 @@
-
 /// <reference path="Ix-DOM.ts" />
 
 window.addEventListener('beforeunload', event =>
@@ -11,20 +10,3 @@ window.addEventListener('beforeunload', event =>
         event.returnValue = "Note: you have unsaved changes.";
     }
 });
-
-var mapEventToTarget = (event: Event) => event.currentTarget as HTMLInputElement;
-
-var markDirty = Ix.DOM.addClass('dirty');
-var markInputDirty = (ev: Event) => markDirty(mapEventToTarget(ev)); // compose(mapEventToTarget, markDirty);
-
-document.addEventListener('change', markInputDirty);
-
-var circles = Ix.DOM.querySelectorAll<SVGCircleElement>('circle');
-
-var draggableCircles = circles.where(circ => circ.r.baseVal.value > 5)
-                              .select(circ => 
-                              ({ 
-                                  x: circ.cx.baseVal.value,
-                                  y: circ.cy.baseVal.value
-                              }))
-                              .take(1);

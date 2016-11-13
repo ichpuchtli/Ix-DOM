@@ -4,94 +4,57 @@
 
 type IEnumerable<T> = Ix.Enumerable<T>;
 
-namespace Ix.Util
-{
-    export function toArray<T>(arrayLike: { [index: number]: T, length: number }): T[]
-    {
-        return Array.prototype.slice.call(arrayLike);
-    }
-
-    export function toEnumerable<T>(arrayLike: { [index: number]: T, length: number }): IEnumerable<T>
-    {
-        return Ix.Enumerable.fromArray<T>(arrayLike as T[]);
-    }
-
-    export function coerceToArray<T>(obj: T | T[])
-    {
-        return obj instanceof Array ? obj : [obj];
-    }
-
-    export function coerceToEnumerable<T>(obj: T | T[] | IEnumerable<T>)
-    {
-        return obj instanceof Ix.Enumerable ? obj : toEnumerable<T>(coerceToArray<T>(obj));
-    }
-
-    export function coerceAndForEach<T>(elements: T | T[] | IEnumerable<T>, func: (element: T) => any)
-    {
-        var elementsArray = coerceToEnumerable<T>(elements);
-
-        elementsArray.forEach(func);
-
-        return elementsArray;
-    }
-}
-
 namespace Ix.DOM
 {
-    export function addClass<T extends HTMLElement | SVGElement>(classNames: string | string[])
-    {
-        return function (elements: T | T[] | IEnumerable<T>)
-        {
-            const addClasses = (names: string[]) => (el: T) => names.forEach(name => el.classList.add(name));
+    type IArrayLike<T> = { [index: number]: T, length: number };
 
-            return Util.coerceAndForEach<T>(elements, addClasses(Util.coerceToArray(classNames)));
+    namespace Util
+    {
+        export function toEnumerable<T>(arrayLike: IArrayLike<T>): IEnumerable<T>
+        {
+            return Ix.Enumerable.fromArray<T>(arrayLike as T[]);
         }
     }
 
-    export function removeClass<T extends HTMLElement | SVGElement>(classNames: string | string[])
+    export const addClass = <T extends Element>(className: string) => (element : T) => element.classList.add(className);
+
+    export const removeClass = <T extends Element>(className: string) => (element : T) => element.classList.remove(className);
+
+    export const toggleClass = <T extends Element>(className: string) => (element: T) => element.classList.toggle(className);
+
+    export const hasClass = <T extends Element>(className: string) => (element: T) => element.classList.contains(className);
+
+    export const hasAttr = (attributeName: string) => (element: Element) => element.hasAttribute(attributeName);
+
+    export const hasDataAttr = (attributeName: string) => hasAttr(`data-${attributeName}`);
+
+    export function prop<T, K extends keyof T>(element: T, attributeName: K, attributeValue: T[K]) : void
+    export function prop<T, K extends keyof T>(element: T, attributeName: K) : T[K]
+    export function prop<T, K extends keyof T>(element: T, attributeName: K, attributeValue?: T[K]) : void|T[K]
     {
-        return function (elements: T | T[] | IEnumerable<T>)
+        if(attributeValue)
         {
-            const removeClasses = (names: string[]) => (el: T) => names.forEach(name => el.classList.remove(name));
-
-            return Util.coerceAndForEach<T>(elements, removeClasses(Util.coerceToArray(classNames)));
+            return element[attributeName] = attributeValue;
         }
+
+        return element[attributeName];
     }
 
-    export function toggleClass<T extends HTMLElement | SVGElement>(classNames: string | string[])
+    export function attr<T extends string>(attributeName: string) : (element: Element) => T|null
+    export function attr(attributeName: string, attributeValue: string|number|boolean) : (element: Element) => void
+    export function attr<T extends string>(attributeName: string, attributeValue?: string|number|boolean) : (element: Element) => void
     {
-        return function (elements: T | T[] | IEnumerable<T>)
+        if(attributeValue)
         {
-            const toggleClasses = (names: string[]) => (el: T) => names.forEach(name => el.classList.toggle(name));
-
-            return Util.coerceAndForEach<T>(elements, toggleClasses(Util.coerceToArray(classNames)));
+            return (element: Element) => element.setAttribute(attributeName, attributeValue.toString());
         }
+
+        return  (element: Element) => element.getAttribute(attributeName) as T | null;
     }
 
-    export function hasClass<T extends HTMLElement | SVGElement>(className: string)
+    export function attrOrThrow<T extends string>(attributeName: string)
     {
-        return function (element: T | T[] | IEnumerable<T>)
-        {
-            return Util.coerceToEnumerable<T>(element).any(el => el.classList.contains(className));
-        }
-    }
-
-    export function hasAttr<T extends string>(attributeName: string)
-    {
-        return function (element: HTMLElement | SVGElement | Element)
-        {
-            return element.hasAttribute(attributeName);
-        }
-    }
-
-    export function hasDataAttr<T extends string>(attributeName: string)
-    {
-        return hasAttr(`data-${attributeName}`);
-    }
-
-    export function attr<T extends string>(attributeName: string)
-    {
-        return function (element: HTMLElement | SVGElement | Element)
+        return (element: Element) =>
         {
             if (element.hasAttribute(attributeName))
             {
@@ -99,96 +62,105 @@ namespace Ix.DOM
             }
 
             throw new Error(`Attribute ${attributeName} does not exist on ${element}`);
-        }
+        };
     }
 
-    export function attrAsNumber<T extends number>(attributeName: string)
-    {
-        return function (element: HTMLElement | SVGElement | Element)
-        {
-            return parseInt(attr(attributeName)(element)) as T;
-        }
-    }
+    export const attrAsNumber = <T extends number>(attributeName: string) => (element: Element) => parseInt(attrOrThrow(attributeName)(element)) as T;
 
-    export function setAttr<T extends HTMLElement | SVGElement | Element>(attributeName: string, attributeValue: string | number)
+    export const attrAsBool = (attributeName: string) => (element: Element) => attrOrThrow(attributeName)(element).toLowerCase() == "true";
+
+    export const data = <T extends string>(dataAttributeName: string) => attrOrThrow<T>(`data-${dataAttributeName}`);
+
+    export const dataAttrAsNumber = <T extends number>(dataAttributeName: string) => attrAsNumber<T>(`data-${dataAttributeName}`);
+
+    export const dataAttrAsBool = (dataAttributeName: string) => attrAsBool(`data-${dataAttributeName}`);
+
+    export function style<T extends SVGElement|HTMLElement>(property: keyof CSSStyleDeclaration, value: string | number): (element: T) => T
+    export function style<T extends SVGElement|HTMLElement>(property: CSSProperties): (element: T) => T
+    export function style<T extends SVGElement|HTMLElement>(property: (keyof CSSStyleDeclaration) | CSSProperties, value?: string | number)
     {
+        let props = property as string | CSSProperties;
+
         return function (element: T)
         {
-            return element.setAttribute(attributeName, attributeValue.toString());
-        }
-    }
-
-    export function data<T extends string>(dataAttributeName: string)
-    {
-        return attr<T>(`data-${dataAttributeName}`);
-    }
-
-    export function dataAttrAsNumber<T extends number>(dataAttributeName: string)
-    {
-        return attrAsNumber<T>(`data-${dataAttributeName}`);
-    }
-
-    export function css<T extends HTMLElement | SVGElement>(properties: CSSProperties)
-    {
-        return function (element: T)
-        {
-            for (var cssProperty in properties)
+            if (typeof props === "string")
             {
-                // Cast to HTMLElement as SVGElement has style property as well just not standard
-                (element as any as HTMLElement).style[cssProperty as any as number] = properties[cssProperty];
+                (element as HTMLElement).style[props as any] = value!.toString();
+            }
+            else
+            {
+                for (let prop in props)
+                {
+                    // Cast to HTMLElement as SVGElement has style property as well just not standard
+                    (element as HTMLElement).style[prop as any] = props[prop].toString();
+                }
             }
 
             return element;
         }
     }
 
+    export const parents = (element: Node) => Ix.Enumerable.create(() => 
+        Ix.Enumerator.create(
+            () => (element = element.parentNode as Node) !== null,
+            () => element,
+            () => { }
+    ));
+
+    export const setTextContent = <T extends HTMLElement | SVGElement>(element: T) => (text: string) => element.textContent = text;
+
+    //TODO XSS.js
     export function setInnerHtml<T extends HTMLElement | SVGElement>(element: T)
     {
-        return function (html: string)
+        return function (html: string | HTMLElement | SVGElement)
         {
-            return element.innerHTML = html;
+            if (typeof html === 'string')
+            {
+                element.innerHTML = html;
+            }
+            else
+            {
+                while (element.lastChild)
+                {
+                    element.removeChild(element.lastChild);
+                }
+                element.appendChild(html);
+            }
         }
     }
 
-    export function children<C, T extends HTMLElement | SVGElement>(element: T)
+    export function children<T extends SVGElement>(element: T): IEnumerable<T>
+    export function children<T extends HTMLElement>(element: HTMLElement): IEnumerable<T>
+    export function children<T extends HTMLElement | SVGElement>(element: HTMLElement | SVGElement)
     {
-        return Util.toArray<C>(element.children as any);
+        return Util.toEnumerable<T>(element.children as IArrayLike<any>);
     }
 
-    export function remove<T extends HTMLElement | SVGElement>(element: T)
-    {
-        element.parentNode.removeChild(element);
-    }
+    export const remove = <T extends HTMLElement | SVGElement>(element: T) => (element.parentNode as Node).removeChild(element);
 
-    export function append<T extends HTMLElement | SVGElement>(parent: T)
-    {
-        return function <T extends HTMLElement | SVGElement>(element: T)
-        {
-            parent.appendChild(element);
-        }
-    }
+    export const append = <T extends HTMLElement | SVGElement>(parent: Element) => (element: T) => parent.appendChild(element);
 
-    export function hide<T extends HTMLElement | SVGElement>(element: T)
-    {
-        (element as HTMLElement).style.display = 'none';
-    }
+    export const hide = style('display', 'none');
 
-    export function show<T extends HTMLElement | SVGElement>(element: T)
-    {
-        (element as HTMLElement).style.display = 'block';
-    }
+    export const show = style('display', 'block');
 
-    export function value<T extends HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(element: T, setValue?: string | number)
+    export function value<T extends HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(element: T) : string
+    export function value<T extends HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(element: T, setValue: string | number): string
+    export function value<T extends HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(element: T, setValue?: string | number): string
     {
         return setValue ? element.value = setValue.toString() : element.value;
     }
 
+    export function valueAsNumber<T extends HTMLInputElement>(element: T) : number
+    export function valueAsNumber<T extends HTMLInputElement>(element: T, setValue: number): number
     export function valueAsNumber<T extends HTMLInputElement>(element: T, setValue?: number)
     {
         return setValue ? element.valueAsNumber = setValue : element.valueAsNumber;
     }
 
-    export function elementById<T extends HTMLElement | SVGElement>(id: string): T
+    export const elementById = <T extends HTMLElement | SVGElement>(id: string) => document.getElementById(id) as T|null;
+
+    export function elementByIdOrThrow<T extends HTMLElement | SVGElement>(id: string): T
     {
         var element = document.getElementById(id);
 
@@ -200,12 +172,12 @@ namespace Ix.DOM
         throw new Error(`Element #${id} does not exist.`);
     }
 
-    export function querySelectorOrNull<T extends HTMLElement | SVGElement>(selector: string, root: Element | HTMLDocument = document): T | null
+    export function querySelector<T extends HTMLElement | SVGElement>(selector: string, root: Element | HTMLDocument = document): T | null
     {
         return root.querySelector(selector) as any as T;
     }
 
-    export function querySelector<T extends HTMLElement | SVGElement>(selector: string, root: Element | HTMLDocument = document): T
+    export function querySelectorOrThrow<T extends HTMLElement | SVGElement>(selector: string, root: Element | HTMLDocument = document): T
     {
         var element = root.querySelector(selector);
 
@@ -217,13 +189,22 @@ namespace Ix.DOM
         throw new Error(`No match for ${selector} under ${root}`);
     }
 
+    export function querySelectorAllOrThrow<T extends HTMLElement | SVGElement>(selector: string, root: Element | HTMLDocument = document): IEnumerable<T>
+    {
+        const elements = root.querySelectorAll(selector);
+
+        if (elements.length === 0)
+        {
+            throw new Error(`No match for ${selector} under ${root}`);
+        }
+
+        return Util.toEnumerable<T>(elements as any);
+    }
+
     export function querySelectorAll<T extends HTMLElement | SVGElement>(selector: string, root: Element | HTMLDocument = document): IEnumerable<T>
     {
         return Util.toEnumerable<T>(root.querySelectorAll(selector) as any);
     }
 
-    export function ready(func: () => void)
-    {
-        document.readyState != 'loading' ? func() : document.addEventListener('DOMContentLoaded', func);
-    }
+    export const ready = (func: (...args: any[]) => any) => document.readyState !== 'loading' ? func() : document.addEventListener('DOMContentLoaded', func);
 }

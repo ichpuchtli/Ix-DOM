@@ -1,0 +1,34 @@
+{
+  "name": "ix-dom",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Ix-DOM.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ichpuchtli/ix-dom.git"
+  },
+  "keywords": [
+    "ixjs",
+    "ix",
+    "ix.js",
+    "dom",
+    "pure",
+    "dom"
+  ],
+  "author": "Sam Macpherson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ichpuchtli/ix-dom/issues"
+  },
+  "homepage": "https://github.com/ichpuchtli/ix-dom#readme",
+  "dependencies": {
+    "@types/ix.js": "^1.0.17",
+    "@types/react": "^0.14.47",
+    "@types/rx": "^2.5.33",
+    "ix": "^1.0.6",
+    "typescript": "^2.2.0-dev.20161112"
+  }
+}
