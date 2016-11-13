@@ -1,11 +1,8 @@
 {
   "name": "ix-dom",
   "version": "1.0.0",
-  "description": "",
+  "description": "HTML DOM Bindings for the Interactive Extensions for JavaScript (IxJS) framework ",
   "main": "Ix-DOM.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ichpuchtli/ix-dom.git"
@@ -16,7 +13,8 @@
     "ix.js",
     "dom",
     "pure",
-    "dom"
+    "dom",
+    "jquery"
   ],
   "author": "Sam Macpherson",
   "license": "MIT",
@@ -26,8 +24,6 @@
   "homepage": "https://github.com/ichpuchtli/ix-dom#readme",
   "dependencies": {
     "@types/ix.js": "^1.0.17",
-    "@types/react": "^0.14.47",
-    "@types/rx": "^2.5.33",
     "ix": "^1.0.6",
     "typescript": "^2.2.0-dev.20161112"
   }
