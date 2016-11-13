@@ -1,4 +1,4 @@
-/// <reference path="Ix-DOM.ts" />
+/// <reference path="../Ix-DOM.ts" />
 
 window.addEventListener('beforeunload', event =>
 {

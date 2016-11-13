@@ -1,6 +1,6 @@
 
 /// <reference path="node_modules/@types/ix.js/index.d.ts" />
-/// <reference path="CSSProperties.d.ts" />
+/// <reference path="lib/CSSProperties.d.ts" />
 
 type IEnumerable<T> = Ix.Enumerable<T>;
 
@@ -112,7 +112,7 @@ namespace Ix.DOM
     //TODO XSS.js
     export function setInnerHtml<T extends HTMLElement | SVGElement>(element: T)
     {
-        return function (html: string | HTMLElement | SVGElement)
+        return function (html: string | Element | Element[] | IEnumerable<Element>)
         {
             if (typeof html === 'string')
             {
@@ -124,14 +124,24 @@ namespace Ix.DOM
                 {
                     element.removeChild(element.lastChild);
                 }
-                element.appendChild(html);
+
+                if (html instanceof Ix.Enumerable)
+                {
+                    html.forEach(el => element.appendChild(el));
+                }
+                else if (html instanceof Array)
+                {
+                    html.forEach(el => element.appendChild(el));
+                }
+                else
+                {
+                    element.appendChild(html);
+                }
             }
         }
     }
 
-    export function children<T extends SVGElement>(element: T): IEnumerable<T>
-    export function children<T extends HTMLElement>(element: HTMLElement): IEnumerable<T>
-    export function children<T extends HTMLElement | SVGElement>(element: HTMLElement | SVGElement)
+    export function children<T extends SVGElement|HTMLElement>(element: Element)
     {
         return Util.toEnumerable<T>(element.children as IArrayLike<any>);
     }
