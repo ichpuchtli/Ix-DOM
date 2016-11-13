@@ -16,9 +16,9 @@ namespace Ix.DOM
         }
     }
 
-    export const addClass = <T extends Element>(className: string) => (element : T) => element.classList.add(className);
+    export const addClass = <T extends Element>(className: string) => (element: T) => element.classList.add(className);
 
-    export const removeClass = <T extends Element>(className: string) => (element : T) => element.classList.remove(className);
+    export const removeClass = <T extends Element>(className: string) => (element: T) => element.classList.remove(className);
 
     export const toggleClass = <T extends Element>(className: string) => (element: T) => element.classList.toggle(className);
 
@@ -28,11 +28,11 @@ namespace Ix.DOM
 
     export const hasDataAttr = (attributeName: string) => hasAttr(`data-${attributeName}`);
 
-    export function prop<T, K extends keyof T>(element: T, attributeName: K, attributeValue: T[K]) : void
-    export function prop<T, K extends keyof T>(element: T, attributeName: K) : T[K]
-    export function prop<T, K extends keyof T>(element: T, attributeName: K, attributeValue?: T[K]) : void|T[K]
+    export function prop<T, K extends keyof T>(element: T, attributeName: K, attributeValue: T[K]): void
+    export function prop<T, K extends keyof T>(element: T, attributeName: K): T[K]
+    export function prop<T, K extends keyof T>(element: T, attributeName: K, attributeValue?: T[K]): void | T[K]
     {
-        if(attributeValue)
+        if (attributeValue)
         {
             return element[attributeName] = attributeValue;
         }
@@ -40,16 +40,16 @@ namespace Ix.DOM
         return element[attributeName];
     }
 
-    export function attr<T extends string>(attributeName: string) : (element: Element) => T|null
-    export function attr(attributeName: string, attributeValue: string|number|boolean) : (element: Element) => void
-    export function attr<T extends string>(attributeName: string, attributeValue?: string|number|boolean) : (element: Element) => void
+    export function attr<T extends string>(attributeName: string): (element: Element) => T | null
+    export function attr(attributeName: string, attributeValue: string | number | boolean): (element: Element) => void
+    export function attr<T extends string>(attributeName: string, attributeValue?: string | number | boolean): (element: Element) => void
     {
-        if(attributeValue)
+        if (attributeValue)
         {
             return (element: Element) => element.setAttribute(attributeName, attributeValue.toString());
         }
 
-        return  (element: Element) => element.getAttribute(attributeName) as T | null;
+        return (element: Element) => element.getAttribute(attributeName) as T | null;
     }
 
     export function attrOrThrow<T extends string>(attributeName: string)
@@ -75,9 +75,9 @@ namespace Ix.DOM
 
     export const dataAttrAsBool = (dataAttributeName: string) => attrAsBool(`data-${dataAttributeName}`);
 
-    export function style<T extends SVGElement|HTMLElement>(property: keyof CSSStyleDeclaration, value: string | number): (element: T) => T
-    export function style<T extends SVGElement|HTMLElement>(property: CSSProperties): (element: T) => T
-    export function style<T extends SVGElement|HTMLElement>(property: (keyof CSSStyleDeclaration) | CSSProperties, value?: string | number)
+    export function style<T extends SVGElement | HTMLElement>(property: keyof CSSStyleDeclaration, value: string | number): (element: T) => T
+    export function style<T extends SVGElement | HTMLElement>(property: CSSProperties): (element: T) => T
+    export function style<T extends SVGElement | HTMLElement>(property: (keyof CSSStyleDeclaration) | CSSProperties, value?: string | number)
     {
         let props = property as string | CSSProperties;
 
@@ -100,12 +100,12 @@ namespace Ix.DOM
         }
     }
 
-    export const parents = (element: Node) => Ix.Enumerable.create(() => 
+    export const parents = (element: Node) => Ix.Enumerable.create(() =>
         Ix.Enumerator.create(
             () => (element = element.parentNode as Node) !== null,
             () => element,
             () => { }
-    ));
+        ));
 
     export const setTextContent = <T extends HTMLElement | SVGElement>(element: T) => (text: string) => element.textContent = text;
 
@@ -144,21 +144,21 @@ namespace Ix.DOM
 
     export const show = style('display', 'block');
 
-    export function value<T extends HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(element: T) : string
+    export function value<T extends HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(element: T): string
     export function value<T extends HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(element: T, setValue: string | number): string
     export function value<T extends HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(element: T, setValue?: string | number): string
     {
         return setValue ? element.value = setValue.toString() : element.value;
     }
 
-    export function valueAsNumber<T extends HTMLInputElement>(element: T) : number
+    export function valueAsNumber<T extends HTMLInputElement>(element: T): number
     export function valueAsNumber<T extends HTMLInputElement>(element: T, setValue: number): number
     export function valueAsNumber<T extends HTMLInputElement>(element: T, setValue?: number)
     {
         return setValue ? element.valueAsNumber = setValue : element.valueAsNumber;
     }
 
-    export const elementById = <T extends HTMLElement | SVGElement>(id: string) => document.getElementById(id) as T|null;
+    export const elementById = <T extends HTMLElement | SVGElement>(id: string) => document.getElementById(id) as T | null;
 
     export function elementByIdOrThrow<T extends HTMLElement | SVGElement>(id: string): T
     {
